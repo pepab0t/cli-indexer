@@ -1,21 +1,19 @@
-from typing import Protocol
+from typing import Protocol, Iterable
 from .abs import Command
 from ..exceptions import ArgumentException
-from ..entity import OutputInfo
+from ..entity import OutputInfo, InfoIndex
 from pathlib import Path
 
 
 class Indexer(Protocol):
-    def make_index(self, root: Path) -> None:
+    def search_information_runtime(
+        self, information: str, root: Path
+    ) -> Iterable[OutputInfo]:
         ...
 
-    def load_data(self, fpath: Path) -> None:
-        ...
-
-    def search_information(self, information: str) -> list[OutputInfo]:
-        ...
-
-    def get_datetime(self) -> str:
+    def search_information_index(
+        self, information: str, index: InfoIndex
+    ) -> Iterable[OutputInfo]:
         ...
 
 
@@ -53,17 +51,20 @@ sinf info (root_dir | -i index_file)
     def execute(self, args: list[str]) -> None:
         parsed = self.parse_args(args)
 
+        info: str = parsed[self.info_key]
+
         if (root := parsed.get(self.root_dir_key)) is not None:
-            print(f"Creating index for dir: {root}")
-            self.indexer.make_index(root)
+            print(f"Finding information runtime")
+            it = self.indexer.search_information_runtime(info, root)
         else:
-            self.indexer.load_data(parsed[self.index_file_key])
-            print(f"Loaded index from: {self.indexer.get_datetime()}")
+            index = InfoIndex.load(parsed[self.index_file_key])
+            print(f"Loaded index from: {index.created}")
+            it = self.indexer.search_information_index(info, index)
 
-        out = self.indexer.search_information(parsed[self.info_key])
+        count = 0
+        for item in it:
+            print(item.format())
+            count += 1
 
-        if out:
-            for o in out:
-                print(o.format())
-        else:
+        if count == 0:
             print("nothing found")

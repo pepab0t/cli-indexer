@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from app import Indexer, CLIApplication
 from app.command import IndexCommand, SearchFileDirCommand, SearchInfoCommand
 import sys
@@ -7,7 +8,7 @@ def main():
     indexer = Indexer()
 
     # sys.argv = ["main.py", "index", "."]
-    sys.argv = ["main.py", "sinf", "imp", "-i", "index.pkl"]
+    sys.argv = ["main.py", "sinf", "xxx", "file_struct"]
 
     cli = CLIApplication()
     cli.register_command(IndexCommand(indexer))

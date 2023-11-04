@@ -7,7 +7,7 @@ from .colors import red_text, blue_text, green_text
 from dataclasses import dataclass
 
 
-class FileIndex:
+class InfoIndex:
     def __init__(self):
         self.created: str = datetime.now().strftime(r"%d.%m.%Y %H:%M:%S")
         self._d: dict[str, list[str]] = {}
@@ -32,15 +32,15 @@ class FileIndex:
         return fpath.suffix == ".pkl"
 
     @staticmethod
-    def load(fpath: Path) -> "FileIndex":
+    def load(fpath: Path) -> "InfoIndex":
         if not fpath.is_file():
             raise IndexerException(f"No such file {fpath}")
         with fpath.open("rb") as f:
             obj = pickle.load(f)
 
-        if not isinstance(obj, FileIndex):
+        if not isinstance(obj, InfoIndex):
             raise IndexerException(
-                f"Wrong object of type {obj.__class__.__name__} (expected Data)"
+                f"Wrong object of type {obj.__class__.__name__} (expected {InfoIndex.__name__})"
             )
         return obj
 

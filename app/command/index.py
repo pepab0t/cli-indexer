@@ -2,14 +2,11 @@ from typing import Protocol
 from .abs import Command
 from ..exceptions import ArgumentException, IndexerException
 from pathlib import Path
-from ..entity import FileIndex
+from ..entity import InfoIndex
 
 
 class Indexer(Protocol):
-    def make_index(self, root: Path) -> None:
-        ...
-
-    def dump_data(self, dst: Path) -> None:
+    def make_index(self, root: Path) -> InfoIndex:
         ...
 
 
@@ -47,10 +44,10 @@ index root_dir [-o output_file]
         parsed = self.parse_args(args)
         dst: Path = parsed.get(self.output_file_key, self.default_dst)
 
-        if not FileIndex.valid_pkl(dst):
+        if not InfoIndex.valid_pkl(dst):
             raise IndexerException(f"File {dst} is not valid .pkl file")
 
-        self.indexer.make_index(parsed[self.root_dir_key])
-        self.indexer.dump_data(dst)
+        index = self.indexer.make_index(parsed[self.root_dir_key])
+        index.dump(dst)
 
         print(f"Created index file: {dst}")
