@@ -1,2 +1,2 @@
-from .indexer import Indexer
+from .core import Indexer, SearchEngine
 from .cli import CLIApplication

@@ -1,19 +1,31 @@
 #!/usr/bin/env python3
-from app import Indexer, CLIApplication
-from app.command import IndexCommand, SearchFileDirCommand, SearchInfoCommand
+from app import Indexer, CLIApplication, SearchEngine
+from app.command import (
+    IndexCommand,
+    SearchFileDirCommand,
+    SearchInfoCommand,
+    SearchFileDirInfoCommand,
+)
 import sys
+import time
 
 
 def main():
     indexer = Indexer()
+    search_engine = SearchEngine()
 
-    # sys.argv = ["main.py", "index", "."]
-    sys.argv = ["main.py", "sinf", "xxx", "file_struct"]
+    sys.argv = ["main.py", "index", "."]
+    # sys.argv = ["main.py", "sinf", "xxx", "."]
+    # sys.argv = ["main.py", "inf", "xxx", "-i", "index.pkl"]
+    # sys.argv = ["main.py", "searchfd", "ewmyj", "-i", "index.pkl"]
+    # sys.argv = ["main.py", "searchfd", "ewmyj", "."]
+    # sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "-i", "index.pkl"]
 
     cli = CLIApplication()
     cli.register_command(IndexCommand(indexer))
-    cli.register_command(SearchInfoCommand(indexer))
-    cli.register_command(SearchFileDirCommand(indexer))
+    cli.register_command(SearchInfoCommand(search_engine))
+    cli.register_command(SearchFileDirCommand(search_engine))
+    cli.register_command(SearchFileDirInfoCommand(search_engine))
     cli.run()
 
 

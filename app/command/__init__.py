@@ -1,4 +1,5 @@
-from .sfd import SearchFileDirCommand
+from .searchfd import SearchFileDirCommand
 from .index import IndexCommand
-from .sinf import SearchInfoCommand
+from .info import SearchInfoCommand
 from .abs import Command, AbstractCommand
+from .searchfdi import SearchFileDirInfoCommand

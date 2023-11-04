@@ -1,7 +1,7 @@
 from typing import Protocol, Iterable
 from .abs import Command
 from ..exceptions import ArgumentException
-from ..entity import OutputInfo, InfoIndex
+from ..entity import OutputInfo, Index
 from pathlib import Path
 
 
@@ -12,24 +12,24 @@ class Indexer(Protocol):
         ...
 
     def search_information_index(
-        self, information: str, index: InfoIndex
+        self, information: str, index: Index
     ) -> Iterable[OutputInfo]:
         ...
 
 
 class SearchInfoCommand(Command):
-    name: str = "sinf"
-    doc: str = """
-sinf info (root_dir | -i index_file)
+    name: str = "info"
+    doc: str = f"""
+{name} inform (root_dir | -i index_file)
     Find information within files
-    - info: information to find
+    - inform: information to find
     - root_dir: directory to search
     - index_file:
         if not specified, autocreate index first (more runtime required)
         if specified, use index file"""
 
-    def __init__(self, indexer: Indexer):
-        self.indexer = indexer
+    def __init__(self, engine: Indexer):
+        self.engine = engine
 
         self.info_key = "info"
         self.root_dir_key = "root_dir"
@@ -55,11 +55,11 @@ sinf info (root_dir | -i index_file)
 
         if (root := parsed.get(self.root_dir_key)) is not None:
             print(f"Finding information runtime")
-            it = self.indexer.search_information_runtime(info, root)
+            it = self.engine.search_information_runtime(info, root)
         else:
-            index = InfoIndex.load(parsed[self.index_file_key])
+            index = Index.load(parsed[self.index_file_key])
             print(f"Loaded index from: {index.created}")
-            it = self.indexer.search_information_index(info, index)
+            it = self.engine.search_information_index(info, index)
 
         count = 0
         for item in it:

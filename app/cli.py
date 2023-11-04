@@ -6,6 +6,7 @@ from .exceptions import (
     IndexerException,
 )
 import sys
+from .measure import measure_time
 
 
 def parse_input() -> tuple[str, list[str]]:
@@ -46,23 +47,27 @@ class CLIApplication:
         else:
             print(help_c.execute())
 
-    def run(self):
+    @measure_time(lambda res: res == 0)
+    def run(self) -> int:
         try:
             command, args = parse_input()
         except MissingCommandException as e:
             print(str(e) + "\n")
             self.print_help()
-            return
+            return 1
 
         try:
             cmd_object: AbstractCommand = context.get_command(command)
         except InvalidCommandException as e:
             print(str(e) + "\n")
             self.print_help()
-            return
+            return 1
 
         try:
             cmd_object.execute(args)
         except IndexerException as e:
             print(str(e) + "\n")
             print(cmd_object.doc.strip())
+            return 1
+
+        return 0

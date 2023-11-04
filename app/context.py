@@ -1,4 +1,4 @@
-from .command.sfd import Command
+from .command import Command
 from .exceptions import InvalidCommandException
 
 
