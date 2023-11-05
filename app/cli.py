@@ -75,7 +75,12 @@ class CLIApplication:
             self.print_help()
             return 1
 
-        context.apply_options(options)
+        try:
+            context.apply_options(options)
+        except CLIIndexerException as e:
+            print(str(e) + "\n")
+            self.print_help()
+            return 1
 
         try:
             cmd_object = context.get_command(command)

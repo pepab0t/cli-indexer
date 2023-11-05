@@ -52,9 +52,12 @@ class IndexDB:
         )
 
     def __del__(self):
-        self.connection.commit()
-        del self.cursor
-        self.connection.close()
+        try:
+            self.connection.commit()
+            del self.cursor
+            self.connection.close()
+        except Exception:
+            pass
 
 
 class Index:

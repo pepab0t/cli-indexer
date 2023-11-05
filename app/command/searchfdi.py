@@ -52,14 +52,14 @@ class SearchFileDirInfoCommand(Command):
     def execute(self, args: list[str]) -> None:
         parsed = self.parse_args(args)
 
-        index_file = parsed.get("index")
+        root = parsed.get("root")
         info = parsed["info"]
         name = parsed["name"]
 
-        if index_file is not None:
-            it = self.engine.search_fdi_index(name, info, Index.load(index_file))
+        if root is not None:
+            it = self.engine.search_fdi_runtime(name, info, root)
         else:
-            it = self.engine.search_fdi_runtime(name, info, parsed["root"])
+            it = self.engine.search_fdi_index(name, info, Index.load(parsed["index"]))
 
         c: bool = False
         for out in it:

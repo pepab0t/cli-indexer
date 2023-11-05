@@ -42,6 +42,5 @@ class OutputInfo:
     def format(self) -> str:
         output = green_text("Path: ") + self.format_fpath() + "\n"
         for line_num, occ in self.occurances.items():
-            # for occ in occurances:
             output += f"\t{blue_text(f'Line {line_num}')}: {occ.format()}\n"
         return output

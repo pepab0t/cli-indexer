@@ -1,4 +1,4 @@
-from .exceptions import InvalidCommandException
+from .exceptions import InvalidCommandException, CLIIndexerException
 
 from .interfaces import Executable
 
@@ -41,3 +41,5 @@ def apply_options(options: list[str]):
     for opt in options:
         if opt in OPTIONS:
             OPTIONS[opt]()
+        else:
+            raise CLIIndexerException(f"invalid option: {opt}")

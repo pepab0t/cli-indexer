@@ -82,9 +82,9 @@ class SearchEngine:
             data[item[0]].append((item[1], item[2]))
 
         for fpath, lines in data.items():
-            occs = {}
+            occs: dict[int, Occurance] = {}
             for line, i in lines:
-                occs[i] = [Occurance(line, [m.span() for m in pattern.finditer(line)])]
+                occs[i] = Occurance(line, [m.span() for m in pattern.finditer(line)])
             yield OutputInfo(fpath, occs)
 
     @staticmethod
@@ -176,6 +176,8 @@ class SearchEngine:
     def search_fdi_runtime(
         name_part: str, inform: str, root: Path
     ) -> Iterator[OutputInfo]:
+        if not root.is_dir():
+            raise CLIIndexerException(f"{root} not a dir")
         name_part = clean_regex(name_part)
         inform = clean_regex(inform)
 
