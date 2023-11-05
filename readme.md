@@ -86,6 +86,8 @@ Since this is the CLI application, index is stored in `.pkl` file.
 Other approach was based on creating `.sqlite` database for indexing.\
 This approach is not fully completed, but in `IndexDB` class is shown some methodic, how this could be implemented. Advantage of this approach would be faster searching, than looping dictionary. Continue reading to know the reason, why first approach was prefered.
 
+Important to note, that storing index in database avoid holding all data in memory, compare to dictionary index. Assuming small example filesystem like `./file_struct`, we can relatively ignore this fact.
+
 ### Comparison
 Comparison was performed on creating index for example filesystem `./file_struct`.
 ```
@@ -97,7 +99,7 @@ search index.pkl took around 1 ms.
 search index.db  took around 1 ms.
 ```
 ```
-index.pkl needs around 150kB of storage.
+index.pkl needs around 150kB of storage (but also loaded to RAM).
 index.db  needs around 300kB of storage.
 ```
 
@@ -152,6 +154,9 @@ print(content)
 # output: bar baz
 ```
 This way, `content` contains what was printed.
+
+## Limitations
+App is not restricted to specific max directory size (in bytes), so it's highly recommended not to index large directories (like `~/Documents`). In case of searching through large dirs, prefer runtime searching that completely runs using iterators and runtime memory is not influenced by size of the target.
 
 ## Possible improvements
 - use some CLI library for better, smarter and prettier implementation of CLI applications (such as [Typer](https://typer.tiangolo.com/))
