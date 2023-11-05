@@ -1,8 +1,9 @@
 from typing import Protocol, Iterable
 from .abs import Command
 from ..exceptions import ArgumentException
-from ..entity import OutputInfo, Index
+from ..entity import OutputInfo
 from pathlib import Path
+from ..index import Index, IndexDB
 
 
 class Indexer(Protocol):
@@ -57,6 +58,7 @@ class SearchInfoCommand(Command):
             print(f"Finding information runtime")
             it = self.engine.search_information_runtime(info, root)
         else:
+            # index = IndexDB(parsed[self.index_file_key])
             index = Index.load(parsed[self.index_file_key])
             print(f"Loaded index from: {index.created}")
             it = self.engine.search_information_index(info, index)

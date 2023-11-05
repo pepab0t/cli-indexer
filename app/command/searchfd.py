@@ -2,7 +2,8 @@ from typing import Protocol, Iterator
 from .abs import Command
 from pathlib import Path
 from ..exceptions import ArgumentException
-from ..entity import Index, OutputInfo
+from ..entity import OutputInfo
+from ..index import Index
 
 
 class Engine(Protocol):

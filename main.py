@@ -14,12 +14,13 @@ def main():
     indexer = Indexer()
     search_engine = SearchEngine()
 
-    sys.argv = ["main.py", "index", "."]
-    # sys.argv = ["main.py", "sinf", "xxx", "."]
-    # sys.argv = ["main.py", "inf", "xxx", "-i", "index.pkl"]
+    # sys.argv = ["main.py", "index", "."]
+    # sys.argv = ["main.py", "info", "xxx", "."]
+    # sys.argv = ["main.py", "info", "xxx", "-i", "index.pkl"]
     # sys.argv = ["main.py", "searchfd", "ewmyj", "-i", "index.pkl"]
     # sys.argv = ["main.py", "searchfd", "ewmyj", "."]
     # sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "-i", "index.pkl"]
+    sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "."]
 
     cli = CLIApplication()
     cli.register_command(IndexCommand(indexer))

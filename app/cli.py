@@ -3,7 +3,7 @@ from .command import Command, AbstractCommand
 from .exceptions import (
     MissingCommandException,
     InvalidCommandException,
-    IndexerException,
+    CLIIndexerException,
 )
 import sys
 from .measure import measure_time
@@ -21,7 +21,7 @@ def parse_input() -> tuple[str, list[str]]:
     return command, args
 
 
-class HelpCommand(Command):
+class HelpCommand(AbstractCommand):
     name: str = "help"
     doc: str = """Find files, dirs or file content in specified directory.
 COMMAND ARGUMENT [OPTIONS ...]"""
@@ -35,7 +35,7 @@ class CLIApplication:
         self.register_command(HelpCommand())
 
     @staticmethod
-    def register_command(command: Command):
+    def register_command(command: AbstractCommand):
         context.register_command(command)
 
     @staticmethod
@@ -65,7 +65,7 @@ class CLIApplication:
 
         try:
             cmd_object.execute(args)
-        except IndexerException as e:
+        except CLIIndexerException as e:
             print(str(e) + "\n")
             print(cmd_object.doc.strip())
             return 1

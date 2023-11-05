@@ -1,15 +1,15 @@
-from .command import Command
+from .command import AbstractCommand
 from .exceptions import InvalidCommandException
 
 
-commands: dict[str, Command] = {}
+commands: dict[str, AbstractCommand] = {}
 
 
-def register_command(command: Command):
+def register_command(command: AbstractCommand):
     commands[command.name] = command
 
 
-def get_command(name: str) -> Command:
+def get_command(name: str) -> AbstractCommand:
     """Retrieve registered command.
 
     Args:

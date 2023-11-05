@@ -1,10 +1,12 @@
 import os
 import re
 from pathlib import Path
-from typing import Iterator, Callable, Generator
-from .exceptions import IndexerException
+from typing import Iterator, Callable, Generator, Protocol
+from .exceptions import CLIIndexerException
 from collections import defaultdict
-from .entity import Index, OutputInfo, Occurance
+from .entity import OutputInfo, Occurance
+from .index import IndexDB, Index
+from .interfaces import Insertable
 
 
 def walk_files(root: Path) -> Iterator[Path]:
@@ -38,16 +40,14 @@ def clean_regex(inform: str) -> str:
 
 class Indexer:
     @staticmethod
-    def make_index(root: Path) -> Index:
+    def make_index(root: Path, index: Insertable) -> None:
         if not root.is_dir():
-            raise IndexerException(f"{root} not a dir")
-        index = Index()
+            raise CLIIndexerException(f"{root} not a dir")
         for path in walk(root):
             try:
-                index.add(str(path), path.read_text(encoding="utf-8"))
+                index.insert(str(path), path.read_text(encoding="utf-8").splitlines())
             except Exception:
                 pass
-        return index
 
 
 class SearchEngine:
@@ -59,34 +59,47 @@ class SearchEngine:
         pattern = re.compile(f"{information}")
 
         for fpath, lines in index.files():
-            occurances = defaultdict(list)
+            occurances = {}
             for i, line in enumerate(lines, start=1):
                 if pattern.search(line) is None:
                     continue
 
                 spans = [m.span() for m in pattern.finditer(line)]
 
-                occ = Occurance(line.rstrip(), spans)
-                occurances[i].append(occ)
+                occurances[i] = Occurance(line.rstrip(), spans)
 
             if len(occurances) > 0:
                 yield OutputInfo(fpath, occurances)
+
+    @staticmethod
+    def search_information_index_db(info: str, index: IndexDB):
+        data = defaultdict(list)
+        info = clean_regex(info)
+
+        pattern = re.compile(f"{info}")
+
+        for item in index.select_information(info):
+            data[item[0]].append((item[1], item[2]))
+
+        for fpath, lines in data.items():
+            occs = {}
+            for line, i in lines:
+                occs[i] = [Occurance(line, [m.span() for m in pattern.finditer(line)])]
+            yield OutputInfo(fpath, occs)
 
     @staticmethod
     def search_information_runtime(
         information: str, root: Path
     ) -> Iterator[OutputInfo]:
         if not root.is_dir():
-            raise IndexerException(f"{root} not a dir")
+            raise CLIIndexerException(f"{root} not a dir")
 
         information = clean_regex(information)
         pattern = re.compile(f"{information}")
 
         for fpath in walk_files(root):
-            occurances = defaultdict(list)
+            occurances = {}
             with fpath.open("r", encoding="utf-8") as f:
-                if fpath.name == "file_gpodilao..ext":
-                    print(end="")
                 try:
                     lines = f.readlines()
                 except Exception:
@@ -97,7 +110,7 @@ class SearchEngine:
                         continue
 
                     spans = [m.span() for m in pattern.finditer(line)]
-                    occurances[i].append(Occurance(line.rstrip(), spans))
+                    occurances[i] = Occurance(line.rstrip(), spans)
             if len(occurances):
                 yield OutputInfo(str(fpath), occurances)
 
@@ -117,7 +130,7 @@ class SearchEngine:
     @staticmethod
     def search_fd_runtime(name_part: str, root: Path) -> Iterator[OutputInfo]:
         if not root.is_dir():
-            raise IndexerException(f"{root} not a dir")
+            raise CLIIndexerException(f"{root} not a dir")
         name_part = clean_regex(name_part)
         pattern: re.Pattern = re.compile(f"{name_part}")
 
@@ -144,17 +157,52 @@ class SearchEngine:
             if pattern_file.search(fpath) is None:
                 continue
 
-            occs = defaultdict(list)
+            occs: dict[int, Occurance] = {}
             for i, line in enumerate(lines, start=1):
                 if pattern_info.search(line) is None:
                     continue
-
-                occ = Occurance(line, [m.span() for m in pattern_info.finditer(line)])
-                occs[i].append(occ)
+                occs[i] = Occurance(
+                    line, [m.span() for m in pattern_info.finditer(line)]
+                )
 
             if len(occs) == 0:
                 continue
 
             yield OutputInfo(
                 fpath, occs, [m.span() for m in pattern_file.finditer(fpath)]
+            )
+
+    @staticmethod
+    def search_fdi_runtime(
+        name_part: str, inform: str, root: Path
+    ) -> Iterator[OutputInfo]:
+        name_part = clean_regex(name_part)
+        inform = clean_regex(inform)
+
+        pattern_file: re.Pattern = re.compile(f"{name_part}")
+        pattern_info: re.Pattern = re.compile(f"{inform}")
+
+        for path in walk_files(root):
+            path_str = str(path)
+            if pattern_file.search(path_str) is None:
+                continue
+
+            occs: dict[int, Occurance] = {}
+            try:
+                lines = path.read_text().splitlines()
+            except Exception:
+                continue
+
+            for i, line in enumerate(lines, start=1):
+                if pattern_info.search(line) is None:
+                    continue
+                occs[i] = Occurance(
+                    line, [m.span() for m in pattern_info.finditer(line)]
+                )
+
+            if len(occs) == 0:
+                continue
+
+            yield OutputInfo(
+                path_str, occs, [m.span() for m in pattern_file.finditer(path_str)]
             )

@@ -1,4 +1,4 @@
-class IndexerException(Exception):
+class CLIIndexerException(Exception):
     def __init__(self, message: str) -> None:
         self.message: str = message
 
@@ -9,13 +9,13 @@ class IndexerException(Exception):
         return f"{self.__class__.__name__}('{self.message}')"
 
 
-class ArgumentException(IndexerException):
+class ArgumentException(CLIIndexerException):
     pass
 
 
-class MissingCommandException(IndexerException):
+class MissingCommandException(CLIIndexerException):
     pass
 
 
-class InvalidCommandException(IndexerException):
+class InvalidCommandException(CLIIndexerException):
     pass
