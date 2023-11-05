@@ -64,7 +64,7 @@ class CLIApplication:
         except InvalidCommandException as e:
             print(e)
         else:
-            print(help_c.execute())
+            help_c.execute()
 
     @measure_time(lambda res: res == 0)
     def run(self) -> int:
