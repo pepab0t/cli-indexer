@@ -6,7 +6,7 @@ from .exceptions import CLIIndexerException
 from collections import defaultdict
 from .entity import OutputInfo, Occurance
 from .index import IndexDB, Index
-from .interfaces import Insertable
+from .interfaces import Insertable, SearchEngine
 
 
 def walk_files(root: Path) -> Iterator[Path]:
@@ -50,11 +50,9 @@ class Indexer:
                 pass
 
 
-class SearchEngine:
+class SearchInfoEngine(SearchEngine):
     @staticmethod
-    def search_information_index(
-        information: str, index: Index
-    ) -> Iterator[OutputInfo]:
+    def search_index(information: str, index: Index) -> Iterator[OutputInfo]:
         information = clean_regex(information)
         pattern = re.compile(f"{information}")
 
@@ -72,7 +70,7 @@ class SearchEngine:
                 yield OutputInfo(fpath, occurances)
 
     @staticmethod
-    def search_information_index_db(info: str, index: IndexDB):
+    def search_index_db(info: str, index: IndexDB):
         data = defaultdict(list)
         info = clean_regex(info)
 
@@ -88,9 +86,7 @@ class SearchEngine:
             yield OutputInfo(fpath, occs)
 
     @staticmethod
-    def search_information_runtime(
-        information: str, root: Path
-    ) -> Iterator[OutputInfo]:
+    def search_runtime(information: str, root: Path) -> Iterator[OutputInfo]:
         if not root.is_dir():
             raise CLIIndexerException(f"{root} not a dir")
 
@@ -114,8 +110,10 @@ class SearchEngine:
             if len(occurances):
                 yield OutputInfo(str(fpath), occurances)
 
+
+class SearchFileDirEngine(SearchEngine):
     @staticmethod
-    def search_fd_index(name_part: str, index: Index) -> Iterator[OutputInfo]:
+    def search_index(name_part: str, index: Index) -> Iterator[OutputInfo]:
         name_part = clean_regex(name_part)
         pattern: re.Pattern = re.compile(f"{name_part}")
 
@@ -128,7 +126,7 @@ class SearchEngine:
             yield OutputInfo(k, dict(), spans)
 
     @staticmethod
-    def search_fd_runtime(name_part: str, root: Path) -> Iterator[OutputInfo]:
+    def search_runtime(name_part: str, root: Path) -> Iterator[OutputInfo]:
         if not root.is_dir():
             raise CLIIndexerException(f"{root} not a dir")
         name_part = clean_regex(name_part)
@@ -143,10 +141,10 @@ class SearchEngine:
 
             yield OutputInfo(path_str, dict(), spans)
 
+
+class SearchFileDirInfoEngine(SearchEngine):
     @staticmethod
-    def search_fdi_index(
-        name_part: str, inform: str, index: Index
-    ) -> Iterator[OutputInfo]:
+    def search_index(name_part: str, inform: str, index: Index) -> Iterator[OutputInfo]:
         name_part = clean_regex(name_part)
         inform = clean_regex(inform)
 
@@ -173,9 +171,7 @@ class SearchEngine:
             )
 
     @staticmethod
-    def search_fdi_runtime(
-        name_part: str, inform: str, root: Path
-    ) -> Iterator[OutputInfo]:
+    def search_runtime(name_part: str, inform: str, root: Path) -> Iterator[OutputInfo]:
         if not root.is_dir():
             raise CLIIndexerException(f"{root} not a dir")
         name_part = clean_regex(name_part)

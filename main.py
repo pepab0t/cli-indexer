@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-from app import Indexer, CLIApplication, SearchEngine
+from app import (
+    Indexer,
+    CLIApplication,
+    SearchInfoEngine,
+    SearchFileDirEngine,
+    SearchFileDirInfoEngine,
+)
 from app.command import (
     IndexCommand,
     SearchFileDirCommand,
@@ -11,7 +17,9 @@ import sys
 
 def main():
     indexer = Indexer()
-    search_engine = SearchEngine()
+    si_engine = SearchInfoEngine()
+    sfd_engine = SearchFileDirEngine()
+    sfdi_engine = SearchFileDirInfoEngine()
 
     # sys.argv = ["main.py", "index", "."]
     # sys.argv = ["main.py", "info", "xxx", "."]
@@ -24,9 +32,9 @@ def main():
 
     cli = CLIApplication()
     cli.register_command(IndexCommand(indexer))
-    cli.register_command(SearchInfoCommand(search_engine))
-    cli.register_command(SearchFileDirCommand(search_engine))
-    cli.register_command(SearchFileDirInfoCommand(search_engine))
+    cli.register_command(SearchInfoCommand(si_engine))
+    cli.register_command(SearchFileDirCommand(sfd_engine))
+    cli.register_command(SearchFileDirInfoCommand(sfdi_engine))
     cli.run()
 
 

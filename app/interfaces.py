@@ -1,4 +1,5 @@
-from typing import Protocol
+from typing import Protocol, Any
+from abc import ABC, abstractmethod
 
 
 class Insertable(Protocol):
@@ -16,4 +17,12 @@ class Executable(Protocol):
         ...
 
     def execute(self, args: list[str] = list()) -> None:
+        ...
+
+
+class SearchEngine(ABC):
+    def search_index(self, *args, **kwargs) -> Any:
+        ...
+
+    def search_runtime(self, *args, **kwargs) -> Any:
         ...

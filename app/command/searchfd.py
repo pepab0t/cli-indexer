@@ -7,10 +7,10 @@ from ..index import Index
 
 
 class Engine(Protocol):
-    def search_fd_index(self, name_part: str, index: Index) -> Iterator[OutputInfo]:
+    def search_index(self, name_part: str, index: Index) -> Iterator[OutputInfo]:
         ...
 
-    def search_fd_runtime(self, name_part: str, root: Path) -> Iterator[OutputInfo]:
+    def search_runtime(self, name_part: str, root: Path) -> Iterator[OutputInfo]:
         ...
 
 
@@ -52,10 +52,10 @@ class SearchFileDirCommand(Command):
 
         if (index_path := parsed.get(self.index_file_key)) is not None:
             index: Index = Index.load(index_path)
-            it = self.engine.search_fd_index(parsed[self.name_key], index)
+            it = self.engine.search_index(parsed[self.name_key], index)
         else:
             root: Path = parsed[self.root_key]
-            it = self.engine.search_fd_runtime(parsed[self.name_key], root)
+            it = self.engine.search_runtime(parsed[self.name_key], root)
 
         c: bool = False
         for out in it:

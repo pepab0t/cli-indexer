@@ -6,15 +6,11 @@ from pathlib import Path
 from ..index import Index, IndexDB
 
 
-class Indexer(Protocol):
-    def search_information_runtime(
-        self, information: str, root: Path
-    ) -> Iterable[OutputInfo]:
+class Engine(Protocol):
+    def search_runtime(self, information: str, root: Path) -> Iterable[OutputInfo]:
         ...
 
-    def search_information_index(
-        self, information: str, index: Index
-    ) -> Iterable[OutputInfo]:
+    def search_index(self, information: str, index: Index) -> Iterable[OutputInfo]:
         ...
 
 
@@ -29,7 +25,7 @@ class SearchInfoCommand(Command):
         if not specified, autocreate index first (more runtime required)
         if specified, use index file"""
 
-    def __init__(self, engine: Indexer):
+    def __init__(self, engine: Engine):
         self.engine = engine
 
         self.info_key = "info"
@@ -56,12 +52,12 @@ class SearchInfoCommand(Command):
 
         if (root := parsed.get(self.root_dir_key)) is not None:
             print(f"Finding information runtime")
-            it = self.engine.search_information_runtime(info, root)
+            it = self.engine.search_runtime(info, root)
         else:
             # index = IndexDB(parsed[self.index_file_key])
             index = Index.load(parsed[self.index_file_key])
             print(f"Loaded index from: {index.created}")
-            it = self.engine.search_information_index(info, index)
+            it = self.engine.search_index(info, index)
 
         count = 0
         for item in it:

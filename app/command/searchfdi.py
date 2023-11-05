@@ -7,12 +7,12 @@ from ..index import Index
 
 
 class Engine(Protocol):
-    def search_fdi_index(
+    def search_index(
         self, name_part: str, inform: str, index: Index
     ) -> Iterator[OutputInfo]:
         ...
 
-    def search_fdi_runtime(
+    def search_runtime(
         self, name_part: str, inform: str, root: Path
     ) -> Iterator[OutputInfo]:
         ...
@@ -57,9 +57,9 @@ class SearchFileDirInfoCommand(Command):
         name = parsed["name"]
 
         if root is not None:
-            it = self.engine.search_fdi_runtime(name, info, root)
+            it = self.engine.search_runtime(name, info, root)
         else:
-            it = self.engine.search_fdi_index(name, info, Index.load(parsed["index"]))
+            it = self.engine.search_index(name, info, Index.load(parsed["index"]))
 
         c: bool = False
         for out in it:
