@@ -1,3 +1,6 @@
+from .context import Context
+
+
 class Bcolors:
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -11,12 +14,21 @@ class Bcolors:
 
 
 def red_text(text: str):
-    return f"{Bcolors.FAIL}{text}{Bcolors.ENDC}"
+    if Context.colors:
+        return f"{Bcolors.FAIL}{text}{Bcolors.ENDC}"
+    else:
+        return text
 
 
 def blue_text(text: str):
-    return f"{Bcolors.OKBLUE}{text}{Bcolors.ENDC}"
+    if Context.colors:
+        return f"{Bcolors.OKBLUE}{text}{Bcolors.ENDC}"
+    else:
+        return text
 
 
 def green_text(text: str):
-    return f"{Bcolors.OKGREEN}{text}{Bcolors.ENDC}"
+    if Context.colors:
+        return f"{Bcolors.OKGREEN}{text}{Bcolors.ENDC}"
+    else:
+        return text

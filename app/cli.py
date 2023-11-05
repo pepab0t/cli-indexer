@@ -1,5 +1,4 @@
 from . import context
-from .command import Command, AbstractCommand
 from .exceptions import (
     MissingCommandException,
     InvalidCommandException,
@@ -7,27 +6,47 @@ from .exceptions import (
 )
 import sys
 from .measure import measure_time
+from .command import AbstractCommand
 
 
-def parse_input() -> tuple[str, list[str]]:
+def parse_input() -> tuple[list[str], str, list[str]]:
     if len(sys.argv) == 1:
         raise MissingCommandException("no command specified")
 
-    command = sys.argv[1]
-    args = []
-    if len(sys.argv) >= 2:
-        args.extend(sys.argv[2:])
+    options = []
+    i = 1
+    for arg in sys.argv[1:]:
+        if arg.startswith("--"):
+            options.append(arg)
+            i += 1
+        else:
+            break
 
-    return command, args
+    try:
+        command = sys.argv[i]
+    except IndexError:
+        raise MissingCommandException("no command specified")
+
+    args = []
+    if len(sys.argv) > i:
+        args.extend(sys.argv[i + 1 :])
+
+    return options, command, args
 
 
 class HelpCommand(AbstractCommand):
     name: str = "help"
-    doc: str = """Find files, dirs or file content in specified directory.
-COMMAND ARGUMENT [OPTIONS ...]"""
+    doc: str = f"""Find files, dirs or file content in specified directory.
+[OPTIONS...] COMMAND ARGUMENTS...
+OPTIONS:
+    --no-colors     turn off colors
 
-    def execute(self, args: list[str] = list()) -> str:
-        return "\n".join(map(lambda c: c.doc.strip(), context.commands.values()))
+COMMANDS:"""
+
+    def execute(self, args: list[str] = list()) -> None:
+        print(
+            "\n".join(map(lambda c: c.doc.strip(), context.Context.commands.values()))
+        )
 
 
 class CLIApplication:
@@ -50,14 +69,16 @@ class CLIApplication:
     @measure_time(lambda res: res == 0)
     def run(self) -> int:
         try:
-            command, args = parse_input()
+            options, command, args = parse_input()
         except MissingCommandException as e:
             print(str(e) + "\n")
             self.print_help()
             return 1
 
+        context.apply_options(options)
+
         try:
-            cmd_object: AbstractCommand = context.get_command(command)
+            cmd_object = context.get_command(command)
         except InvalidCommandException as e:
             print(str(e) + "\n")
             self.print_help()

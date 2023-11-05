@@ -6,8 +6,6 @@ from app.command import (
     SearchInfoCommand,
     SearchFileDirInfoCommand,
 )
-import sys
-import time
 
 
 def main():
@@ -20,7 +18,7 @@ def main():
     # sys.argv = ["main.py", "searchfd", "ewmyj", "-i", "index.pkl"]
     # sys.argv = ["main.py", "searchfd", "ewmyj", "."]
     # sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "-i", "index.pkl"]
-    sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "."]
+    # sys.argv = ["main.py", "searchfdi", "xxx", "..ext", "."]
 
     cli = CLIApplication()
     cli.register_command(IndexCommand(indexer))

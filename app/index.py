@@ -66,8 +66,8 @@ class Index:
         self._d: dict[str, list[str] | None] = {}
         self.dst = dst
 
-    def insert(self, path: str, lines: list[str] | None):
-        if lines is None:
+    def insert(self, path: str, lines: list[str]):
+        if not lines:
             self._d[path] = None
         else:
             self._d[path] = lines
